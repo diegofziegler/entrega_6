@@ -57,10 +57,9 @@ Debes entregar un prototipo funcional de un **Orquestador Multi-Agente de Análi
 - Tu [README](./README.md) debe incluir un diagrama del grafo (puedes generarlo con graph.get_graph().draw_mermaid_png()).
 - Explica brevemente por qué elegiste esa topología y cómo manejas los posibles conflictos entre agentes.
 
-
 ### Idea que quiero implementar
 
-El archivo [descripción de la idea](./descripcion_de_la_idea.md) tiene el detalle dell comportamiento que quiero implementar.
+El archivo [descripción de la idea](./descripcion_de_la_idea.md) tiene el detalle del comportamiento que quiero implementar.
 
 ---
 
