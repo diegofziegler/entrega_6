@@ -14,6 +14,11 @@ Debes entregar un prototipo funcional de un **Orquestador Multi-Agente de Análi
   - `agentes.log`: Registra los eventos del Orquestador Multi-Agente / Supervisor.
   - `rag.log`: Registra los eventos del sistema RAG / Retriever / Vector DB.
 - **Gestión de Entorno y Dependencias**: Gestor `uv` con `pyproject.toml` y `requirements.txt`.
+- **Manejo Elegante de Excepciones**:
+  - En lugar de exponer un stacktrace en la consola cuando ocurre una excepción de API / cuota (por ejemplo, `429 RESOURCE_EXHAUSTED`), el error completo se registra en `log/agentes.log`.
+  - El sistema captura la excepción y retorna un mensaje limpio y elegante en el orquestador:
+    - **Línea 1**: `En este momento no puedo responder debido a problemas técnicos`
+    - **Línea 2**: `<CÓDIGO / RESUMEN DE ERROR>` (ejemplo: `429 RESOURCE_EXHAUSTED`).
 
 ### Requerimientos Técnicos:
 

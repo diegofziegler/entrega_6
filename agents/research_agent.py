@@ -2,12 +2,13 @@ import os
 from typing import Dict, Any
 from dotenv import load_dotenv
 from langchain_core.tools import tool
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langchain_core.messages import AIMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.prebuilt import create_react_agent
 
 from state import MultiAgentState
 from rag import search_context_sync
+from supervisor import extract_error_code, build_error_message
 from logger import get_agent_logger
 
 load_dotenv()
@@ -43,37 +44,50 @@ RESEARCHER_SYSTEM_PROMPT = (
 
 def run_research_node(state: MultiAgentState) -> Dict[str, Any]:
     """
-    Nodo wrapper para el Agente de Investigación. Encapsula el estado para evitar contaminación.
+    Nodo wrapper para el Agente de Investigación con manejo elegante de excepciones.
     """
     logger.info("--- NODO RESEARCHER INICIADO ---")
 
-    llm = ChatGoogleGenerativeAI(
-        model=LLM_MODEL_NAME,
-        google_api_key=GEMINI_API_KEY,
-        temperature=0.1
-    )
+    try:
+        llm = ChatGoogleGenerativeAI(
+            model=LLM_MODEL_NAME,
+            google_api_key=GEMINI_API_KEY,
+            temperature=0.1
+        )
 
-    agent = create_react_agent(
-        model=llm,
-        tools=[buscar_en_vectorstore],
-        prompt=RESEARCHER_SYSTEM_PROMPT
-    )
+        agent = create_react_agent(
+            model=llm,
+            tools=[buscar_en_vectorstore],
+            prompt=RESEARCHER_SYSTEM_PROMPT
+        )
 
-    # Extraer mensajes para la invocación
-    input_messages = list(state["messages"])
+        input_messages = list(state["messages"])
+        logger.info(f"Invocando Agente de Investigación con {len(input_messages)} mensajes...")
+        result = agent.invoke({"messages": input_messages})
 
-    logger.info(f"Invocando Agente de Investigación con {len(input_messages)} mensajes...")
-    result = agent.invoke({"messages": input_messages})
+        last_message = result["messages"][-1]
 
-    last_message = result["messages"][-1]
+        researcher_message = AIMessage(
+            content=f"[REPORTE DE INVESTIGACIÓN]\n{last_message.content}",
+            name="investigador"
+        )
 
-    # Asegurar atribución de mensaje con name="investigador"
-    researcher_message = AIMessage(
-        content=f"[REPORTE DE INVESTIGACIÓN]\n{last_message.content}",
-        name="investigador"
-    )
+        logger.info("--- NODO RESEARCHER FINALIZADO ---")
+        return {
+            "messages": [researcher_message]
+        }
 
-    logger.info("--- NODO RESEARCHER FINALIZADO ---")
-    return {
-        "messages": [researcher_message]
-    }
+    except Exception as e:
+        logger.error(f"Excepción en nodo Researcher: {e}", exc_info=True)
+        error_code = extract_error_code(e)
+        error_msg = build_error_message(error_code)
+
+        error_message = AIMessage(
+            content=error_msg,
+            name="investigador"
+        )
+
+        logger.info("--- NODO RESEARCHER FINALIZADO CON ERROR ---")
+        return {
+            "messages": [error_message]
+        }

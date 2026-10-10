@@ -28,17 +28,26 @@ async def run_query(query: str, idioma_destino: str = None):
         "iterations": 0
     }
 
-    print("Iniciando orquestador multi-agente en modo streaming (astream)...\n")
+    print("Iniciando orquestador multi-agente...\n")
 
-    async for event in graph.astream(initial_state, stream_mode="updates"):
-        for node_name, state_update in event.items():
-            print(f"--- NODO EJECUTADO: [{node_name.upper()}] ---")
-            if "next" in state_update:
-                print(f"  > Decisión de ruteo siguiente: {state_update['next']}")
-            if "messages" in state_update:
-                for msg in state_update["messages"]:
-                    sender = getattr(msg, "name", "desconocido")
-                    print(f"  > Mensaje de ({sender}):\n{msg.content}\n")
+    try:
+        async for event in graph.astream(initial_state, stream_mode="updates"):
+            for node_name, state_update in event.items():
+                print(f"--- NODO EJECUTADO: [{node_name.upper()}] ---")
+                if "next" in state_update:
+                    print(f"  > Decisión de ruteo siguiente: {state_update['next']}")
+                if "messages" in state_update:
+                    for msg in state_update["messages"]:
+                        sender = getattr(msg, "name", "desconocido")
+                        print(f"  > Mensaje de ({sender}):\n{msg.content}\n")
+
+    except Exception as e:
+        agent_logger.error(f"Excepción no capturada en ejecución streaming: {e}", exc_info=True)
+        from supervisor import extract_error_code, build_error_message
+        err_code = extract_error_code(e)
+        print(f"--- ERROR TÉCNICO EN ORQUESTADOR ---")
+        print(build_error_message(err_code))
+        print()
 
     print("="*80)
     print("EJECUCIÓN FINALIZADA")

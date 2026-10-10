@@ -13,6 +13,7 @@ from langchain_core.output_parsers import PydanticOutputParser
 
 from logger import get_rag_logger
 from ingest import check_and_ensure_vectorstore, get_embeddings_model
+from supervisor import extract_error_code, build_error_message
 
 load_dotenv()
 
@@ -24,7 +25,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 
 class RAGResponse(BaseModel):
-    answer: str = Field(description="Respuesta generada basada estrictamente en el contexto recuperado")
+    answer: str = Field(description="Respuesta generada basada strictly en el contexto recuperado")
     sources: List[str] = Field(description="Lista de fuentes (archivos) utilizadas para construir la respuesta")
     found_context: bool = Field(description="Verdadero si se encontró información relevante en los documentos, falso de lo contrario")
 
@@ -70,26 +71,30 @@ async def get_rag_response(query: str, k: int = 4) -> RAGResponse:
         format_instructions=parser.get_format_instructions()
     )
 
-    llm = ChatGoogleGenerativeAI(
-        model=LLM_MODEL_NAME,
-        google_api_key=GEMINI_API_KEY,
-        temperature=0.0
-    )
-
-    logger.info(f"Invocando LLM ({LLM_MODEL_NAME}) de forma asíncrona...")
-    response_msg = await llm.ainvoke(prompt_formatted)
-
     try:
+        llm = ChatGoogleGenerativeAI(
+            model=LLM_MODEL_NAME,
+            google_api_key=GEMINI_API_KEY,
+            temperature=0.0
+        )
+
+        logger.info(f"Invocando LLM ({LLM_MODEL_NAME}) de forma asíncrona...")
+        response_msg = await llm.ainvoke(prompt_formatted)
+
         parsed_response = parser.parse(response_msg.content)
         parsed_response.sources = sources if parsed_response.found_context else []
         logger.info(f"Respuesta RAG generada. found_context={parsed_response.found_context}")
         return parsed_response
+
     except Exception as e:
-        logger.error(f"Error parseando respuesta RAG: {e}")
+        logger.error(f"Excepción en get_rag_response: {e}", exc_info=True)
+        error_code = extract_error_code(e)
+        error_msg = build_error_message(error_code)
+
         return RAGResponse(
-            answer=response_msg.content,
+            answer=error_msg,
             sources=sources,
-            found_context=True
+            found_context=False
         )
 
 
