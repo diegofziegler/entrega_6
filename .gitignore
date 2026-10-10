@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Python-generated files
 __pycache__/
 *.py[oc]
@@ -21,3 +22,11 @@ wheels/
 *.db
 log/
 
+=======
+__pycache__/
+*.pyc
+.venv/
+vectorstore/
+log/*.log
+.env
+>>>>>>> jules-7783662967289170240-d8863f5f
