@@ -45,6 +45,27 @@ graph TD
 
 ---
 
+## ⚙️ Configuración Multi-Proveedor de LLM (Gemini / Groq)
+
+El sistema permite seleccionar dinámicamente el proveedor de LLM a través de la variable `LLM_PROVIDER` en el archivo `.env`:
+
+```ini
+# Selección de proveedor: "gemini" o "groq"
+LLM_PROVIDER=gemini
+
+# Para usar Google Gemini
+GEMINI_API_KEY=tu_gemini_api_key
+GEMINI_MODEL_NAME=gemini-3-flash-preview
+
+# Para usar Groq
+GROQ_API_KEY=tu_groq_api_key
+GROQ_MODEL_NAME=llama-3.3-70b-versatile
+```
+
+Para cambiar de proveedor, simplemente cambia `LLM_PROVIDER=groq` o `LLM_PROVIDER=gemini` en tu archivo `.env`.
+
+---
+
 ## 🛠️ Requisitos Previos e Instalación
 
 ### 1. Clonar el repositorio e instalar dependencias con `uv`
@@ -128,4 +149,5 @@ Los eventos del sistema se registran de forma aislada en la carpeta `./log`:
 - **Structured Output**: Control estricto de decisiones del Supervisor con esquemas Pydantic.
 - **Atribución de Mensajes (`name`)**: Identificación clara de respuestas por agente (`investigador`, `analista`).
 - **Aislamiento de Herramientas y Estado**: Sub-agentes encapsulados que previenen contaminación de contexto (`context bloating`).
+- **Manejo Elegante de Excepciones**: Captura de errores de API (ej. `429 RESOURCE_EXHAUSTED`) con logs detallados e informe limpio al usuario.
 - **Ejecución Asíncrona Streaming (`astream`)**: Procesamiento asíncrono no bloqueante para seguimiento nodo a nodo.

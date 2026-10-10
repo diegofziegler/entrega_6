@@ -3,20 +3,17 @@ from typing import Dict, Any
 from dotenv import load_dotenv
 from langchain_core.tools import tool
 from langchain_core.messages import AIMessage
-from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.prebuilt import create_react_agent
 
 from state import MultiAgentState
 from rag import search_context_sync
 from supervisor import extract_error_code, build_error_message
 from logger import get_agent_logger
+from llm import get_llm
 
 load_dotenv()
 
 logger = get_agent_logger()
-
-LLM_MODEL_NAME = os.getenv("LLM_MODEL_NAME", "gemini-3-flash-preview")
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 
 @tool
@@ -49,11 +46,7 @@ def run_research_node(state: MultiAgentState) -> Dict[str, Any]:
     logger.info("--- NODO RESEARCHER INICIADO ---")
 
     try:
-        llm = ChatGoogleGenerativeAI(
-            model=LLM_MODEL_NAME,
-            google_api_key=GEMINI_API_KEY,
-            temperature=0.1
-        )
+        llm = get_llm(temperature=0.1)
 
         agent = create_react_agent(
             model=llm,

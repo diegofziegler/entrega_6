@@ -1,20 +1,17 @@
 import os
-import re
 from typing import Literal, Dict, Any
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 from langchain_core.messages import SystemMessage, AIMessage
-from langchain_google_genai import ChatGoogleGenerativeAI
 
 from state import MultiAgentState
 from logger import get_agent_logger
+from llm import get_llm
 
 load_dotenv()
 
 logger = get_agent_logger()
 
-LLM_MODEL_NAME = os.getenv("LLM_MODEL_NAME", "gemini-3-flash-preview")
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 MAX_ITERATIONS = 5
 
 
@@ -48,16 +45,16 @@ def extract_error_code(e: Exception) -> str:
     Extrae un código de error reconocible como '429 RESOURCE_EXHAUSTED' del mensaje de excepción.
     """
     err_str = str(e)
-    if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
+    if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str or "rate_limit" in err_str.lower():
         return "429 RESOURCE_EXHAUSTED"
-    elif "401" in err_str or "UNAUTHENTICATED" in err_str or "API key" in err_str:
+    elif "401" in err_str or "UNAUTHENTICATED" in err_str or "API key" in err_str or "invalid_api_key" in err_str.lower():
         return "401 UNAUTHENTICATED"
     elif "403" in err_str or "PERMISSION_DENIED" in err_str:
         return "403 PERMISSION_DENIED"
     elif "500" in err_str or "INTERNAL" in err_str:
         return "500 INTERNAL_SERVER_ERROR"
     else:
-        # Extraer patrón HTTP o de error si existe
+        import re
         match = re.search(r"(\d{3}\s+[A-Z_]+)", err_str)
         if match:
             return match.group(1)
@@ -71,7 +68,7 @@ def build_error_message(error_code: str) -> str:
 def run_supervisor_node(state: MultiAgentState) -> Dict[str, Any]:
     """
     Nodo Supervisor que actúa como router inteligente utilizando Salida Estructurada.
-    Incluye manejo elegante de excepciones.
+    Incluye manejo elegante de excepciones y soporte dinámico de LLM.
     """
     iterations = state.get("iterations", 0) + 1
     logger.info(f"--- NODO SUPERVISOR INICIADO (Iteración #{iterations}) ---")
@@ -84,12 +81,7 @@ def run_supervisor_node(state: MultiAgentState) -> Dict[str, Any]:
         }
 
     try:
-        llm = ChatGoogleGenerativeAI(
-            model=LLM_MODEL_NAME,
-            google_api_key=GEMINI_API_KEY,
-            temperature=0.0
-        )
-
+        llm = get_llm(temperature=0.0)
         structured_llm = llm.with_structured_output(RouterResponse)
         messages = [SystemMessage(content=SUPERVISOR_PROMPT)] + list(state["messages"])
 

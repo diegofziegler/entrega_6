@@ -7,25 +7,23 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 from pydantic import BaseModel, Field
 from langchain_chroma import Chroma
-from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
 
 from logger import get_rag_logger
 from ingest import check_and_ensure_vectorstore, get_embeddings_model
 from supervisor import extract_error_code, build_error_message
+from llm import get_llm
 
 load_dotenv()
 
 logger = get_rag_logger()
 
 VECTORSTORE_DIR = os.getenv("VECTORSTORE_DIR", "./vectorstore")
-LLM_MODEL_NAME = os.getenv("LLM_MODEL_NAME", "gemini-3-flash-preview")
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 
 class RAGResponse(BaseModel):
-    answer: str = Field(description="Respuesta generada basada strictly en el contexto recuperado")
+    answer: str = Field(description="Respuesta generada basada estrictamente en el contexto recuperado")
     sources: List[str] = Field(description="Lista de fuentes (archivos) utilizadas para construir la respuesta")
     found_context: bool = Field(description="Verdadero si se encontró información relevante en los documentos, falso de lo contrario")
 
@@ -72,13 +70,9 @@ async def get_rag_response(query: str, k: int = 4) -> RAGResponse:
     )
 
     try:
-        llm = ChatGoogleGenerativeAI(
-            model=LLM_MODEL_NAME,
-            google_api_key=GEMINI_API_KEY,
-            temperature=0.0
-        )
+        llm = get_llm(temperature=0.0)
 
-        logger.info(f"Invocando LLM ({LLM_MODEL_NAME}) de forma asíncrona...")
+        logger.info("Invocando LLM RAG de forma asíncrona...")
         response_msg = await llm.ainvoke(prompt_formatted)
 
         parsed_response = parser.parse(response_msg.content)

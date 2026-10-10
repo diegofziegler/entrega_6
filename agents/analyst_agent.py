@@ -2,18 +2,16 @@ import os
 from typing import Dict, Any
 from dotenv import load_dotenv
 from langchain_core.messages import AIMessage, SystemMessage
-from langchain_google_genai import ChatGoogleGenerativeAI
 
 from state import MultiAgentState
 from supervisor import extract_error_code, build_error_message
 from logger import get_agent_logger
+from llm import get_llm
 
 load_dotenv()
 
 logger = get_agent_logger()
 
-LLM_MODEL_NAME = os.getenv("LLM_MODEL_NAME", "gemini-3-flash-preview")
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 DEFAULT_LANGUAGE = os.getenv("DEFAULT_LANGUAGE", "Español")
 
 
@@ -40,11 +38,7 @@ def run_analyst_node(state: MultiAgentState) -> Dict[str, Any]:
     )
 
     try:
-        llm = ChatGoogleGenerativeAI(
-            model=LLM_MODEL_NAME,
-            google_api_key=GEMINI_API_KEY,
-            temperature=0.2
-        )
+        llm = get_llm(temperature=0.2)
 
         messages = [SystemMessage(content=system_prompt)] + list(state["messages"])
 
