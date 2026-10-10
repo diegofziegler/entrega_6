@@ -56,8 +56,10 @@ Este proyecto utiliza **`uv`** como gestor de entornos y dependencias rápido.
 uv venv .venv
 
 # Activar el entorno virtual
-source .venv/bin/activate  # En Linux/macOS
-# .venv\Scripts\activate   # En Windows
+# En Linux/macOS:
+source .venv/bin/activate
+# En Windows (PowerShell / CMD):
+.venv\Scripts\activate
 
 # Instalar dependencias
 uv pip install -r requirements.txt
@@ -89,16 +91,40 @@ LOG_DIR=./log
 
 ### Ejecución de Scripts e Ingesta
 
-El sistema verifica automáticamente si la Vector DB existe en `./vectorstore`. Si no existe, realiza la ingesta de forma automática desde `./data`. También puedes forzar la ingesta manualmente:
+El sistema verifica automáticamente si la Vector DB existe en `./vectorstore`. Si no existe, realiza la ingesta de forma automática desde `./data`.
 
+También puedes forzar o ejecutar la ingesta manualmente:
+
+**En Linux / macOS (con entorno activado):**
 ```bash
 python3 ingest.py
 ```
 
+**En Windows (usando el ejecutable del entorno virtual directamente):**
+```cmd
+.venv\Scripts\python.exe ingest.py
+```
+
+**O usando `uv` (multiplataforma):**
+```bash
+uv run ingest.py
+```
+
 ### Ejecutar el Orquestador por CLI
 
+**En Linux / macOS:**
 ```bash
 python3 main.py
+```
+
+**En Windows:**
+```cmd
+.venv\Scripts\python.exe main.py
+```
+
+**O mediante `uv`:**
+```bash
+uv run main.py
 ```
 
 El script `main.py` ejecutará 3 pruebas representativas:
@@ -114,7 +140,11 @@ Se incluye el archivo **`demo.ipynb`** que muestra el flujo de delegación nodo 
 
 Para iniciarlo:
 ```bash
+# Con entorno activado
 jupyter notebook demo.ipynb
+
+# O con uv:
+uv run jupyter notebook demo.ipynb
 ```
 
 ---
