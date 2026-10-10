@@ -41,7 +41,30 @@ graph TD
 3. **Agente Analista / Sintetizador (`analyst`)**:
    - Recibe la evidencia recopilada por el investigador y la procesa.
    - Redacta la respuesta final **exclusivamente en el `idioma_destino`** configurado en el estado compartible (por ejemplo, Español, Francés, Inglés), permitiendo la separación entre el idioma de almacenamiento/búsqueda y el idioma de entrega al usuario.
-   - Genera el reporte final etiquetado con atribución clara (`name="analista"`).
+   - Cuenta con reglas de **grounding estricto (cero alucinaciones)** para evitar respuestas de cultura general cuando los documentos no contienen la información.
+
+---
+
+## 🔭 Observabilidad con Arize Phoenix y OpenInference
+
+El proyecto incluye integración nativa con **Arize Phoenix** a través del estándar OpenInference / OpenTelemetry (`tracing.py`).
+
+### Configurar e iniciar Arize Phoenix
+
+1. **Iniciar el servidor local de Arize Phoenix**:
+```bash
+# Con el entorno virtual activado:
+phoenix serve
+```
+El servidor de Arize Phoenix iniciará su UI en `http://localhost:6006`.
+
+2. **Variables de entorno en `.env`**:
+```ini
+PHOENIX_COLLECTOR_ENDPOINT=http://localhost:6006/v1/traces
+PHOENIX_PROJECT_NAME=orquestador-multi-agente
+```
+
+Toda ejecución realizada a través de `main.py` o `demo.ipynb` enviará automáticamente las trazas de ejecución de LangChain (Llamadas a LLM, RAG y Agentes) directamente a tu interfaz de Phoenix para su análisis de latencia, costo y evaluación de respuestas.
 
 ---
 
@@ -153,4 +176,5 @@ Los eventos del sistema se registran de forma aislada en la carpeta `./log`:
 - **Atribución de Mensajes (`name`)**: Identificación clara de respuestas por agente (`investigador`, `analista`).
 - **Aislamiento de Herramientas y Estado**: Sub-agentes encapsulados que previenen contaminación de contexto (`context bloating`).
 - **Manejo Elegante de Excepciones**: Captura de errores de API (ej. `429 RESOURCE_EXHAUSTED`) con logs detallados e informe limpio al usuario.
+- **Observabilidad OTLP**: Integración con Arize Phoenix vía OpenInference.
 - **Ejecución Asíncrona Streaming (`astream`)**: Procesamiento asíncrono no bloqueante para seguimiento nodo a nodo.
