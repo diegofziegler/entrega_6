@@ -65,26 +65,6 @@ source .venv/bin/activate
 uv pip install -r requirements.txt
 ```
 
-### 2. Configurar Variables de Entorno (`.env`)
-
-Crea un archivo `.env` tomando como base `.env.example`:
-
-```bash
-cp .env.example .env
-```
-
-Edita `.env` y coloca tu API Key de Gemini:
-
-```ini
-GEMINI_API_KEY=tu_gemini_api_key_aqui
-LLM_MODEL_NAME=gemini-3-flash-preview
-EMBEDDING_MODEL_NAME=sentence-transformers/all-MiniLM-L6-v2
-DEFAULT_LANGUAGE=Español
-VECTORSTORE_DIR=./vectorstore
-DATA_DIR=./data
-LOG_DIR=./log
-```
-
 ---
 
 ## 🚀 Ejecución
@@ -93,37 +73,23 @@ LOG_DIR=./log
 
 El sistema verifica automáticamente si la Vector DB existe en `./vectorstore`. Si no existe, realiza la ingesta de forma automática desde `./data`.
 
-También puedes forzar o ejecutar la ingesta manualmente:
+Puedes ejecutar los scripts según tu sistema operativo o preferencia:
 
-**En Linux / macOS (con entorno activado):**
+**Opción A: Ejecución estándar (con el entorno virtual activado):**
 ```bash
-python3 ingest.py
+python ingest.py
+python main.py
 ```
 
-**En Windows (usando el ejecutable del entorno virtual directamente):**
+**Opción B: En Windows (especificando el ejecutable del entorno venv):**
 ```cmd
 .venv\Scripts\python.exe ingest.py
-```
-
-**O usando `uv` (multiplataforma):**
-```bash
-uv run ingest.py
-```
-
-### Ejecutar el Orquestador por CLI
-
-**En Linux / macOS:**
-```bash
-python3 main.py
-```
-
-**En Windows:**
-```cmd
 .venv\Scripts\python.exe main.py
 ```
 
-**O mediante `uv`:**
+**Opción C: Usando `uv` (multiplataforma):**
 ```bash
+uv run ingest.py
 uv run main.py
 ```
 
