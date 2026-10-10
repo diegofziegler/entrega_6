@@ -60,6 +60,9 @@ GEMINI_MODEL_NAME=gemini-3-flash-preview
 # Para usar Groq
 GROQ_API_KEY=tu_groq_api_key
 GROQ_MODEL_NAME=llama-3.3-70b-versatile
+
+# Token opcional de HuggingFace Hub (para evitar límites de descarga de embeddings)
+HF_TOKEN=tu_token_aqui_hf_
 ```
 
 Para cambiar de proveedor, simplemente cambia `LLM_PROVIDER=groq` o `LLM_PROVIDER=gemini` en tu archivo `.env`.

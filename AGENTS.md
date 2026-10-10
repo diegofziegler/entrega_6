@@ -9,6 +9,7 @@ Debes entregar un prototipo funcional de un **Orquestador Multi-Agente de Análi
 - **Soporte Multi-Proveedor de LLM**: Configurable mediante la variable `LLM_PROVIDER` (`gemini` o `groq` en el archivo `.env`).
   - **Gemini**: `GEMINI_API_KEY` y `GEMINI_MODEL_NAME` (predeterminado: `gemini-3-flash-preview`).
   - **Groq**: `GROQ_API_KEY` y `GROQ_MODEL_NAME` (predeterminado: `llama-3.3-70b-versatile`).
+- **Token Opcional HuggingFace**: `HF_TOKEN` para evitar advertencias de velocidad al descargar modelos de embeddings de HuggingFace.
 - **Modelo de Embeddings**: `sentence-transformers/all-MiniLM-L6-v2` (HuggingFace, local).
 - **Idioma de Respuesta por Defecto**: Configurado vía variable `DEFAULT_LANGUAGE` en `.env` (predeterminado: `"Español"`).
 - **Auto-Ingesta RAG**: El sistema verifica la existencia de `./vectorstore`. Si no existe o está vacío, ejecuta automáticamente la ingesta a partir de los documentos Markdown en `./data`.
