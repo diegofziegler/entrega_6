@@ -9,6 +9,9 @@ Debes entregar un prototipo funcional de un **Orquestador Multi-Agente de Análi
 - **Soporte Multi-Proveedor de LLM**: Configurable mediante la variable `LLM_PROVIDER` (`gemini` o `groq` en el archivo `.env`).
   - **Gemini**: `GEMINI_API_KEY` y `GEMINI_MODEL_NAME` (predeterminado: `gemini-3-flash-preview`).
   - **Groq**: `GROQ_API_KEY` y `GROQ_MODEL_NAME` (predeterminado: `llama-3.3-70b-versatile`).
+- **Observabilidad con Arize Phoenix (OpenInference)**:
+  - `PHOENIX_COLLECTOR_ENDPOINT`: Endpoint local OTLP/HTTP (predeterminado: `http://localhost:6006/v1/traces`).
+  - `PHOENIX_PROJECT_NAME`: Nombre del proyecto en Phoenix (predeterminado: `orquestador-multi-agente`).
 - **Token Opcional HuggingFace**: `HF_TOKEN` para evitar advertencias de velocidad al descargar modelos de embeddings de HuggingFace.
 - **Modelo de Embeddings**: `sentence-transformers/all-MiniLM-L6-v2` (HuggingFace, local).
 - **Idioma de Respuesta por Defecto**: Configurado vía variable `DEFAULT_LANGUAGE` en `.env` (predeterminado: `"Español"`).
@@ -43,7 +46,7 @@ Debes entregar un prototipo funcional de un **Orquestador Multi-Agente de Análi
 ## Errores Comunes a Evitar
 
 - **El "Supervisor Infinito"**: No definir una condición de parada clara, haciendo que el supervisor y los agentes entren en un bucle de correcciones eternas. Tip: Implementa un contador de pasos o un criterio de "Suficiencia" estricto.
-- **Contaminación de Contexto**: Pasar todo el historial a todos los agentes en cada turno. Para sistemas escalables, a veces es mejor que el especialista solo reciba la instrucción específica y el contexto necesario, no toda la metadata del sistema.
+- **Contaminación de Contexto**: Pasar todo el historial a todos los agentes en cada turno. Para sistemas explicables, los sub-agentes se ejecutan de forma aislada.
 
 ## Entregable
 
@@ -51,19 +54,6 @@ Debes entregar un prototipo funcional de un **Orquestador Multi-Agente de Análi
 
 - **Tipo:** Código: repositorio github con `state.py`, la carpeta `agents/` (investigación + análisis), el grafo con nodo Supervisor, y un `README.md` con el diagrama Mermaid del grafo, explicando la topología elegida.
 - **Adicional:** Notebook `demo.ipynb` o script `main.py` que demuestre el flujo de delegación.
-
-### Estructura del Repositorio:
-
-1. Crea un archivo `state.py` para definir el esquema de datos compartido.
-2. Crea un directorio `agents/` con los especialistas (`research_agent.py`, `analyst_agent.py`).
-3. Define el grafo principal en `graph.py` y el script interactivo/demo en `main.py` y `demo.ipynb`.
-
-### Criterios de Aceptación:
-
-1. **Documentación y Visualización**: Claridad en la explicación de la topología y representación visual del grafo en el `README.md`. (Valor 20%)
-2. **Arquitectura y Flujo del Grafo (Supervisor)**: Evaluación del diseño del StateGraph y la implementación del nodo Supervisor para la delegación dinámica. (Valor 35%)
-3. **Especialización de Agentes y Herramientas**: Capacidad de los agentes para ejecutar tareas específicas mediante el uso de herramientas funcionales. (Valor 25%)
-4. **Gestión de Estado y Validación**: Uso de `state.py` para la coherencia de datos y presencia de mecanismos de validación de resultados. (Valor 20%)
 
 ---
 
@@ -73,5 +63,4 @@ Debes entregar un prototipo funcional de un **Orquestador Multi-Agente de Análi
 - **Atribución Clara de Mensajes (`name`)**
 - **Aislamiento de Herramientas**
 - **Aislamiento de Estado (Encapsulación en Nodos Wrapper)**
-- **Prevención de Context Bloating y Colisión**
 - **Invocación Asistida o Asíncrona Streaming (`astream`)**
