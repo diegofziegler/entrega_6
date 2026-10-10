@@ -67,7 +67,7 @@ async def main():
 
     # Ejemplo 3: Pregunta trampa (sin respuesta en la base de datos)
     q3 = "¿En qué año se firmó la Declaración de Independencia de los Estados Unidos y quién la redactó?"
-    await run_query(q3, idioma_destino="Español")
+    await run_query(q3, idioma_destino="Inglés")
 
 
 if __name__ == "__main__":
