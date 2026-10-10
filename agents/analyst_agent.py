@@ -17,7 +17,8 @@ DEFAULT_LANGUAGE = os.getenv("DEFAULT_LANGUAGE", "Español")
 
 def run_analyst_node(state: MultiAgentState) -> Dict[str, Any]:
     """
-    Nodo wrapper para el Agente de Análisis/Síntesis con manejo elegante de excepciones.
+    Nodo wrapper para el Agente de Análisis/Síntesis con reglas estrictas de no-alucinación
+    y manejo elegante de excepciones.
     """
     logger.info("--- NODO ANALYST INICIADO ---")
 
@@ -26,23 +27,26 @@ def run_analyst_node(state: MultiAgentState) -> Dict[str, Any]:
 
     system_prompt = (
         f"Sos un Agente Especialista en Análisis, Síntesis y Redacción.\n"
-        f"Tu objetivo principal es tomar los datos de investigación recopilados por el investigador, "
-        f"analizarlos en profundidad y redactar una respuesta final clara, completa y bien estructurada.\n\n"
+        f"Tu objetivo principal es tomar ÚNICAMENTE los datos de investigación recopilados por el Agente Investigador, "
+        f"analizarlos y redactar una respuesta final clara, completa y bien estructurada.\n\n"
+        f"REGLA ESTRICTA DE GROUNDING (CERO CONOCIMIENTO INTERNO/EXTERNO):\n"
+        f"1. Está ABSOLUTAMENTE PROHIBIDO utilizar tu propio conocimiento previo, cultura general o entrenamiento general para responder la pregunta.\n"
+        f"2. Tu ÚNICA fuente de información permitida es el [REPORTE DE INVESTIGACIÓN] proporcionado por el investigador.\n"
+        f"3. Si el [REPORTE DE INVESTIGACIÓN] especifica que no se encontró información en la base de datos documental, "
+        f"DEBES responder EXCLUSIVAMENTE en el idioma **{idioma_destino}** que la base de datos documental del sistema no contiene "
+        f"información sobre el tema consultado.\n"
+        f"4. BAJO NINGUNA CIRCUNSTANCIA respondas preguntas de historia universal, ciencia o conocimiento general si la información no está en los hallazgos del investigador.\n\n"
         f"REGLA DE ORO DE IDIOMA:\n"
         f"Debes redactar la respuesta FINAL EXCLUSIVAMENTE en el siguiente idioma: **{idioma_destino}**.\n"
-        f"Incluso si los datos de investigación recopilados están en Español o en otro idioma, tu síntesis final "
-        f"debe traducirse y adaptarse culturalmente al idioma de destino: **{idioma_destino}**.\n\n"
-        f"SI LOS DATOS SON INSUFICIENTES O NO SE ENCONTRÓ INFORMACIÓN:\n"
-        f"Explica amablemente en idioma **{idioma_destino}** que la base de datos documental del sistema no contiene "
-        f"información para responder la pregunta realizada."
+        f"Traduce y adapta culturalmente el contenido al idioma de destino: **{idioma_destino}**."
     )
 
     try:
-        llm = get_llm(temperature=0.2)
+        llm = get_llm(temperature=0.0)
 
         messages = [SystemMessage(content=system_prompt)] + list(state["messages"])
 
-        logger.info(f"Invocando LLM Analista para síntesis en '{idioma_destino}'...")
+        logger.info(f"Invocando LLM Analista para síntesis en '{idioma_destino}' con restricción estricta RAG...")
         response = llm.invoke(messages)
 
         analyst_message = AIMessage(

@@ -33,7 +33,7 @@ def get_llm(temperature: float = 0.0):
     else:
         # Proveedor predeterminado: Google Gemini
         gemini_api_key = os.getenv("GEMINI_API_KEY")
-        model_name = os.getenv("LLM_MODEL_NAME", "gemini-3-flash-preview")
+        model_name = os.getenv("GEMINI_MODEL_NAME", os.getenv("LLM_MODEL_NAME", "gemini-3-flash-preview"))
 
         logger.info(f"Instanciando LLM Google Gemini ({model_name}) temp={temperature}")
         from langchain_google_genai import ChatGoogleGenerativeAI
