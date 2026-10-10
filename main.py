@@ -3,6 +3,9 @@ import asyncio
 from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage
 
+from tracing import setup_phoenix_tracing
+setup_phoenix_tracing()
+
 from graph import graph
 from logger import get_agent_logger, get_rag_logger
 
